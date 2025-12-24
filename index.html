@@ -1,0 +1,415 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Family Birthdays</title>
+
+  <style>
+    :root{
+      --bg:#faf7f3;
+      --ink:#222;
+      --muted:#666;
+      --card:#fff;
+      --shadow: 0 10px 25px rgba(0,0,0,.08);
+      --radius: 18px;
+      --tab:#ffffffcc;
+      --tabActive:#222;
+      --tabActiveText:#fff;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+    }
+    .wrap{
+      max-width: 1100px;
+      margin: 26px auto 60px;
+      padding: 0 18px;
+    }
+    header{
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap: 16px;
+      flex-wrap:wrap;
+      margin-bottom: 12px;
+    }
+    h1{
+      margin:0;
+      font-size: 56px;
+      line-height: .95;
+      letter-spacing: -1px;
+      font-weight: 800;
+    }
+    .sub{
+      margin:8px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .controls{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      justify-content:flex-end;
+      flex-wrap:wrap;
+    }
+    .btn{
+      border: 1px solid rgba(0,0,0,.12);
+      background: #fff;
+      padding: 10px 12px;
+      border-radius: 12px;
+      cursor:pointer;
+      font-weight: 800;
+    }
+    .hint{
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .tabs{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      justify-content:flex-end;
+      margin-top: 10px;
+    }
+    .tab{
+      border: 1px solid rgba(0,0,0,.1);
+      background: var(--tab);
+      padding: 10px 14px;
+      border-radius: 999px;
+      cursor:pointer;
+      font-weight: 800;
+      color: var(--ink);
+      transition: transform .08s ease, background .2s ease;
+      user-select:none;
+    }
+    .tab:hover{ transform: translateY(-1px); }
+    .tab.active{
+      background: var(--tabActive);
+      color: var(--tabActiveText);
+      border-color: transparent;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+      margin-top: 18px;
+    }
+    @media (max-width: 980px){
+      h1{font-size:44px}
+      .grid{grid-template-columns: repeat(3, 1fr);}
+    }
+    @media (max-width: 720px){
+      .grid{grid-template-columns: repeat(2, 1fr);}
+      h1{font-size:38px}
+    }
+    @media (max-width: 420px){
+      .grid{grid-template-columns: 1fr;}
+      h1{font-size:34px}
+    }
+
+    .month{
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      border: 1px solid rgba(0,0,0,.06);
+      min-height: 170px;
+    }
+    .month .cap{
+      padding: 14px 14px 10px;
+      display:flex;
+      align-items:baseline;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .month .name{
+      font-size: 22px;
+      font-weight: 900;
+      text-transform: lowercase;
+      letter-spacing: -.3px;
+    }
+    .month .num{
+      font-weight: 800;
+      color: rgba(0,0,0,.45);
+      font-size: 12px;
+    }
+    .month .body{
+      padding: 8px 14px 16px;
+    }
+    .entry{
+      display:flex;
+      gap: 8px;
+      align-items:baseline;
+      font-size: 14px;
+      margin: 6px 0;
+    }
+    .day{
+      width: 28px;
+      text-align:right;
+      font-weight: 900;
+    }
+    .who{
+      font-weight: 800;
+    }
+    .dow{
+      color: var(--muted);
+      font-weight: 700;
+      margin-left: 6px;
+      font-size: 12px;
+    }
+    .age{
+      color: rgba(0,0,0,.55);
+      font-weight: 800;
+      margin-left: 8px;
+      font-size: 12px;
+    }
+    .empty{
+      color: rgba(0,0,0,.35);
+      font-style: italic;
+      font-size: 13px;
+      margin-top: 8px;
+    }
+
+    .m1{background: #f2f6ea;}
+    .m2{background: #e8f4f4;}
+    .m3{background: #efe9fb;}
+    .m4{background: #e7f7ef;}
+    .m5{background: #f2f2f2;}
+    .m6{background: #fff2cf;}
+    .m7{background: #eaf7ff;}
+    .m8{background: #ffe9d6;}
+    .m9{background: #fff0e1;}
+    .m10{background: #ffe3ee;}
+    .m11{background: #eaf6de;}
+    .m12{background: #f3ecff;}
+
+    footer{
+      margin-top: 22px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    code{background:rgba(0,0,0,.05); padding:2px 6px; border-radius:8px}
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>Family birthdays</h1>
+        <div class="sub" id="subtitle">Loading…</div>
+      </div>
+
+      <div class="controls">
+        <button class="btn" id="reloadBtn">Reload JSON</button>
+        <div class="hint">
+          Default: <code>./family_birthdays.json</code>
+        </div>
+      </div>
+
+      <div class="tabs" id="tabs"></div>
+    </header>
+
+    <main class="grid" id="grid"></main>
+
+    <footer>
+      Put <code>index.html</code> and <code>family_birthdays.json</code> in the same folder.
+      If the browser blocks local fetch, run:
+      <code>python -m http.server</code>
+    </footer>
+  </div>
+
+  <script>
+    const MONTHS = [
+      "january","february","march","april","may","june",
+      "july","august","september","october","november","december"
+    ];
+
+    // JSON raw:
+    // RAW[name] = { birth_year, calendar, birthdays: { "2026": "07/13 (월)", ... } }
+    let RAW = {};
+
+    // Parsed for rendering:
+    // DATA[year] = [{name, mm, dd, dow, age}, ...]
+    let DATA = {};
+    let YEARS = [];
+    let currentYear = 2026;
+
+    const tabsEl = document.getElementById("tabs");
+    const gridEl = document.getElementById("grid");
+    const subtitleEl = document.getElementById("subtitle");
+    const reloadBtn = document.getElementById("reloadBtn");
+
+    function parseCellDate(str){
+      // Expecting "MM/DD (요일)"  e.g. "07/13 (월)"
+      if (!str || typeof str !== "string") return null;
+      const m = str.match(/^(\d{2})\/(\d{2})\s*\((.)\)\s*$/);
+      if(!m) return null;
+      return { mm: parseInt(m[1], 10), dd: parseInt(m[2], 10), dow: m[3] };
+    }
+
+    function buildDataFromJson(raw){
+      const data = {};
+      const yearSet = new Set();
+
+      for (const [name, info] of Object.entries(raw)){
+        const by = Number(info.birth_year);
+        const birthdays = info.birthdays || {};
+
+        for (const [yearStr, dateStr] of Object.entries(birthdays)){
+          const year = Number(yearStr);
+          if (!Number.isFinite(year)) continue;
+
+          const parsed = parseCellDate(dateStr);
+          if (!parsed) continue;
+
+          yearSet.add(year);
+          if (!data[year]) data[year] = [];
+
+          data[year].push({
+            name,
+            mm: parsed.mm,
+            dd: parsed.dd,
+            dow: parsed.dow,
+            age: Number.isFinite(by) ? (year - by) : null
+          });
+        }
+      }
+
+      const years = Array.from(yearSet).sort((a,b)=>a-b);
+      years.forEach(y => data[y].sort((a,b)=> (a.mm - b.mm) || (a.dd - b.dd) || a.name.localeCompare(b.name)));
+
+      return { data, years };
+    }
+
+    function makeTabs(){
+      tabsEl.innerHTML = "";
+      YEARS.forEach(y=>{
+        const b = document.createElement("button");
+        b.className = "tab" + (y === currentYear ? " active" : "");
+        b.textContent = y;
+        b.addEventListener("click", ()=>{
+          currentYear = y;
+          makeTabs();
+          renderYear();
+        });
+        tabsEl.appendChild(b);
+      });
+    }
+
+    function renderYear(){
+      subtitleEl.textContent = `Showing birthdays for ${currentYear}`;
+      gridEl.innerHTML = "";
+
+      const entries = DATA[currentYear] || [];
+      const byMonth = Array.from({length:12}, ()=>[]);
+      entries.forEach(e => byMonth[e.mm - 1].push(e));
+      byMonth.forEach(arr => arr.sort((a,b)=> a.dd - b.dd));
+
+      byMonth.forEach((arr, idx)=>{
+        const card = document.createElement("section");
+        card.className = `month m${idx+1}`;
+
+        const cap = document.createElement("div");
+        cap.className = "cap";
+
+        const name = document.createElement("div");
+        name.className = "name";
+        name.textContent = MONTHS[idx];
+
+        const num = document.createElement("div");
+        num.className = "num";
+        num.textContent = String(idx+1).padStart(2,"0");
+
+        cap.appendChild(name);
+        cap.appendChild(num);
+
+        const body = document.createElement("div");
+        body.className = "body";
+
+        if(arr.length === 0){
+          const empty = document.createElement("div");
+          empty.className = "empty";
+          empty.textContent = "No birthdays";
+          body.appendChild(empty);
+        } else {
+          arr.forEach(e=>{
+            const row = document.createElement("div");
+            row.className = "entry";
+
+            // 왼쪽: 날짜 + 요일 (고정 폭)
+            const when = document.createElement("div");
+            when.className = "when";
+            when.textContent = `${e.dd} (${e.dow})`;
+
+            // 가운데: 이름
+            const who = document.createElement("div");
+            who.className = "who";
+            who.textContent = e.name;
+
+            // 오른쪽: 나이
+            const age = document.createElement("div");
+            age.className = "age";
+            if (typeof e.age === "number" && Number.isFinite(e.age)){
+              age.textContent = `${e.age}세`;
+            } else {
+              age.textContent = "";
+            }
+
+            row.appendChild(when);
+            row.appendChild(who);
+            row.appendChild(age);
+            body.appendChild(row);
+          });
+
+        }
+
+        card.appendChild(cap);
+        card.appendChild(body);
+        gridEl.appendChild(card);
+      });
+    }
+
+    async function loadFromUrl(url){
+      const res = await fetch(url, { cache: "no-store" });
+      if (!res.ok) throw new Error(`Fetch failed: ${res.status}`);
+      return await res.json();
+    }
+
+    async function refresh(){
+      subtitleEl.textContent = "Loading…";
+      try{
+        RAW = await loadFromUrl("./family_birthdays.json");
+        const built = buildDataFromJson(RAW);
+
+        DATA = built.data;
+        YEARS = built.years;
+
+        currentYear = YEARS.includes(2026) ? 2026 : (YEARS[0] ?? 2026);
+
+        makeTabs();
+        renderYear();
+      }catch(e){
+        subtitleEl.textContent = "Could not fetch ./family_birthdays.json. Make sure it is in the same folder (or run python -m http.server).";
+        console.error(e);
+        DATA = {};
+        YEARS = [];
+        gridEl.innerHTML = "";
+        tabsEl.innerHTML = "";
+      }
+    }
+
+    reloadBtn.addEventListener("click", refresh);
+
+    // Initial load
+    refresh();
+  </script>
+</body>
+</html>
