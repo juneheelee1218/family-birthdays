@@ -1,0 +1,1005 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>생일 모음</title>
+
+  <style>
+    :root{
+      --bg:#faf7f3;
+      --ink:#222;
+      --muted:#666;
+      --card:#fff;
+      --shadow: 0 10px 25px rgba(0,0,0,.08);
+      --radius: 18px;
+      --tab:#ffffffcc;
+      --tabActive:#222;
+      --tabActiveText:#fff;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+    }
+    .wrap{ max-width:1100px; margin:26px auto 60px; padding:0 18px; }
+    header{
+      display:flex; align-items:flex-end; justify-content:space-between;
+      gap:16px; flex-wrap:wrap; margin-bottom:12px;
+    }
+    h1{ margin:0; font-size:56px; line-height:.95; letter-spacing:-1px; font-weight:800; }
+    .sub{ margin:8px 0 0; color:var(--muted); font-size:14px; }
+
+    .controls{ display:flex; gap:10px; align-items:center; justify-content:flex-end; flex-wrap:wrap; }
+    .btn{
+      border:1px solid rgba(0,0,0,.12);
+      background:#fff;
+      padding:10px 12px;
+      border-radius:12px;
+      cursor:pointer;
+      font-weight:800;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+    }
+    .btn.danger{ border-color: rgba(220,0,0,.25); }
+    .hint{ color:var(--muted); font-size:12px; }
+    code{ background:rgba(0,0,0,.05); padding:2px 6px; border-radius:8px }
+
+    .tabs{ display:flex; flex-wrap:wrap; gap:10px; justify-content:flex-end; margin-top:10px; }
+    .tab{
+      border:1px solid rgba(0,0,0,.1);
+      background:var(--tab);
+      padding:10px 14px;
+      border-radius:999px;
+      cursor:pointer;
+      font-weight:800;
+      color:var(--ink);
+      transition:transform .08s ease, background .2s ease;
+      user-select:none;
+    }
+    .tab:hover{ transform:translateY(-1px); }
+    .tab.active{ background:var(--tabActive); color:var(--tabActiveText); border-color:transparent; }
+
+    .grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:18px; margin-top:18px; }
+    @media (max-width:980px){ h1{font-size:44px} .grid{grid-template-columns:repeat(3,1fr);} }
+    @media (max-width:720px){ .grid{grid-template-columns:repeat(2,1fr);} h1{font-size:38px} }
+    @media (max-width:420px){ .grid{grid-template-columns:1fr;} h1{font-size:34px} }
+
+    .month{
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      border: 1px solid rgba(0,0,0,.06);
+      min-height: 170px;
+    }
+    .month .cap{
+      padding: 14px 14px 10px;
+      display:flex;
+      align-items:baseline;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .month .name{
+      font-size: 22px;
+      font-weight: 900;
+      letter-spacing: -.3px;
+    }
+    .month .num{
+      font-weight: 800;
+      color: rgba(0,0,0,.45);
+      font-size: 12px;
+    }
+    .month .body{
+      padding: 8px 14px 16px;
+    }
+    .entry{
+      display:flex;
+      gap: 8px;
+      align-items:baseline;
+      font-size: 14px;
+      margin: 6px 0;
+    }
+    .day{
+      width: 28px;
+      text-align:right;
+      font-weight: 900;
+    }
+    .who{
+      font-weight: 800;
+    }
+    .dow{
+      color: var(--muted);
+      font-weight: 700;
+      margin-left: 6px;
+      font-size: 12px;
+    }
+    .age{
+      color: rgba(0,0,0,.55);
+      font-weight: 800;
+      margin-left: 8px;
+      font-size: 12px;
+    }
+    .empty{
+      color: rgba(0,0,0,.35);
+      font-style: italic;
+      font-size: 13px;
+      margin-top: 8px;
+    }
+
+    .m1{background:#f2f6ea;} .m2{background:#e8f4f4;} .m3{background:#efe9fb;} .m4{background:#e7f7ef;}
+    .m5{background:#f2f2f2;} .m6{background:#fff2cf;} .m7{background:#eaf7ff;} .m8{background:#ffe9d6;}
+    .m9{background:#fff0e1;} .m10{background:#ffe3ee;} .m11{background:#eaf6de;} .m12{background:#f3ecff;}
+
+    footer{ margin-top:22px; color:var(--muted); font-size:12px; }
+
+    /* panel + form */
+    .panel{
+      width:100%;
+      background:#fff;
+      border:1px solid rgba(0,0,0,.06);
+      border-radius:18px;
+      box-shadow: var(--shadow);
+      padding:14px;
+      margin-top:14px;
+    }
+    .panel h2{ margin:0 0 8px; font-size:16px; letter-spacing:-.2px; }
+    .form{
+      display:grid;
+      grid-template-columns: 1.2fr .8fr .9fr .6fr .6fr .9fr;
+      gap:10px;
+      align-items:end;
+    }
+    @media (max-width:980px){ .form{ grid-template-columns: 1fr 1fr 1fr; } }
+    .field label{ display:block; font-size:12px; color:var(--muted); font-weight:700; margin:0 0 6px; }
+    .field input, .field select{
+      width:100%;
+      padding:10px 10px;
+      border-radius:12px;
+      border:1px solid rgba(0,0,0,.12);
+      font-weight:700;
+      background:#fff;
+    }
+    .rowBtns{ display:flex; gap:10px; flex-wrap:wrap; margin-top:10px; }
+    .small{ font-size:12px; color:var(--muted); margin-top:8px; line-height:1.45; }
+
+    /* list */
+    .list{
+      margin-top:12px;
+      border:1px solid rgba(0,0,0,.08);
+      border-radius:14px;
+      overflow:hidden;
+    }
+    .list .head, .list .row{
+      display:grid;
+      grid-template-columns: 1.2fr .8fr .7fr .7fr .8fr .8fr;
+      gap:8px;
+      padding:10px 12px;
+      align-items:center;
+    }
+    .list .head{
+      background:rgba(0,0,0,.04);
+      font-size:12px;
+      color:var(--muted);
+      font-weight:800;
+    }
+    .list .row{
+      background:#fff;
+      border-top:1px solid rgba(0,0,0,.06);
+      font-size:13px;
+      font-weight:700;
+    }
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      padding:4px 8px;
+      border-radius:999px;
+      background:rgba(0,0,0,.06);
+      font-size:12px;
+      font-weight:800;
+    }
+    .row button{
+      justify-self:end;
+      padding:8px 10px;
+      border-radius:12px;
+      border:1px solid rgba(220,0,0,.25);
+      background:#fff;
+      cursor:pointer;
+      font-weight:900;
+    }
+    .row button:hover{ transform: translateY(-1px); }
+    .row.clickable{ cursor:pointer; }
+    .row.clickable:hover{ background: rgba(0,0,0,.02); }
+
+    .toast{
+      margin-top:10px;
+      font-size:12px;
+      color:#1b1b1b;
+      background:rgba(0,0,0,.05);
+      padding:10px 12px;
+      border-radius:12px;
+      display:none;
+      white-space:pre-line;
+    }
+
+    /* ===== Export ALL Years (single PDF) ===== */
+    #printAll{ display:none; }
+    body.printAll #grid{ display:none; }
+    body.printAll #printAll{ display:block; }
+
+    .yearBlock{ margin-top: 10px; }
+    .yearTitle{
+      font-size: 22pt;
+      font-weight: 900;
+      margin: 0 0 10px 0;
+    }
+    .yearGrid{
+      display:grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+      margin-top: 0;
+    }
+
+    /* ===== Print first page: People List table ===== */
+    #printPeople{ display:none; }
+
+    .peoplePrint{
+      background:#fff;
+      border:1px solid rgba(0,0,0,.12);
+      border-radius:14px;
+      overflow:hidden;
+    }
+
+    .peoplePrint h2{
+      margin:0;
+      padding:12px 14px;
+      font-size:16pt;
+      font-weight:900;
+      border-bottom:1px solid rgba(0,0,0,.08);
+    }
+
+    .peoplePrint table{
+      width:100%;
+      border-collapse:collapse;
+    }
+
+    .peoplePrint th, .peoplePrint td{
+      border-bottom:1px solid rgba(0,0,0,.08);
+      padding:10px 12px;
+      text-align:left;
+      font-size:11pt;
+      font-weight:700;
+    }
+
+    .peoplePrint th{
+      background:rgba(0,0,0,.04);
+      font-weight:900;
+      color:#444;
+    }
+
+    /* ===== PRINT: title + people table + grid only (Letter) ===== */
+    @page{
+      size: letter landscape;
+      margin: 0.5in;
+    }
+
+    /* 화면에서는 숨김 */
+    #currentYearTitle{ display:none; }
+
+    /* 프린트할 때만 표시 */
+    @media print{
+      #currentYearTitle{
+        display:block !important;
+        margin: 0 0 10px 0;
+      }
+    }
+
+    @media print{
+      /* 배경색(카드 색)까지 출력 */
+      *{
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      body{
+        background:#fff !important;
+      }
+
+      /* ✅ 프린트에서 필요 없는 것 전부 숨김 */
+      .controls,
+      .panel,
+      .tabs,
+      footer{
+        display:none !important;
+      }
+
+      /* ✅ 프린트에서 wrap을 종이 폭으로 */
+      .wrap{
+        max-width:none !important;
+        margin:0 !important;
+        padding:0 !important;
+      }
+
+      /* ✅ 제목만 남기고 크기 조정 */
+      h1{
+        font-size:36pt !important;
+        margin:0 0 6px 0 !important;
+      }
+      .sub{
+        font-size:12pt !important;
+        margin:0 0 14px 0 !important;
+        color:#333 !important;
+      }
+
+      /* ✅ 1페이지: People List 표 */
+      #printPeople{
+        display:block !important;
+        margin: 0 0 14px 0 !important;
+        page-break-after: always;
+        break-after: page;
+      }
+
+      /* ✅ 핵심: 12개월만 “크게” 4x3로 */
+      .grid{
+        grid-template-columns: repeat(4, 1fr) !important;
+        gap: 14px !important;
+        margin-top: 0 !important;
+      }
+
+      /* 카드가 페이지 중간에서 찢어지지 않게 */
+      .month{
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+        box-shadow:none !important;
+        border:1px solid rgba(0,0,0,.12) !important;
+      }
+
+      /* 카드 안 글씨 살짝만 줄여서 더 잘 맞게 */
+      .month .name{ font-size:18pt !important; }
+      .entry{ font-size:11pt !important; }
+      .empty{ font-size:11pt !important; }
+
+      /* ✅ ALL YEARS 출력: 연도마다 페이지 분리 + 4x3 */
+      body.printAll .yearBlock{
+        page-break-after: always;
+        break-after: page;
+      }
+      body.printAll .yearBlock:last-child{
+        page-break-after: auto;
+        break-after: auto;
+      }
+      body.printAll .yearGrid{
+        grid-template-columns: repeat(4, 1fr) !important;
+        gap: 14px !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>생일 모음</h1>
+      </div>
+
+      <div class="controls">
+        <button class="btn danger" id="resetBtn">모두 지움</button>
+        <button class="btn" id="exportPdfBtn">PDF로 저장(현재연도)</button>
+        <button class="btn" id="exportAllPdfBtn">PDF로 저장(전체연도)</button>
+        <div class="hint">데이터는 <code>이 브라우저</code>에만 저장됨</div>
+      </div>
+
+      <div class="tabs" id="tabs"></div>
+
+      <div class="panel">
+        <h2>추가</h2>
+
+        <div class="form">
+          <div class="field">
+            <label>이름</label>
+            <input id="fName" placeholder="예: 김영희" />
+          </div>
+
+          <div class="field">
+            <label>출생연도</label>
+            <input id="fBirthYear" type="number" placeholder="예: 1971" />
+          </div>
+
+          <div class="field">
+            <label>월</label>
+            <input id="fMonth" type="number" min="1" max="12" placeholder="1~12" />
+          </div>
+
+          <div class="field">
+            <label>일</label>
+            <input id="fDay" type="number" min="1" max="31" placeholder="1~31" />
+          </div>
+
+          <div class="field">
+            <label>음력/양력</label>
+            <select id="fCal">
+              <option value="s">양력</option>
+              <option value="l">음력</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label>윤달(음력만)</label>
+            <select id="fLeap">
+              <option value="false">아니오</option>
+              <option value="true">예(윤달)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="rowBtns">
+          <button class="btn" id="addBtn">추가</button>
+          <button class="btn" id="clearBtn">지움</button>
+        </div>
+
+        <div class="toast" id="toast"></div>
+
+        <div class="list" id="peopleList">
+          <div class="head">
+            <div>이름</div><div>출생연도</div><div>달력</div><div>월/일</div><div>윤달</div><div style="text-align:right;">삭제</div>
+          </div>
+          <!-- rows injected -->
+        </div>
+      </div>
+    </header>
+
+    <!-- ✅ 프린트 1페이지: People List 표 (평소엔 숨김) -->
+    <div id="printPeople"></div>
+
+    <h2 id="currentYearTitle" class="yearTitle"></h2>
+
+    <main class="grid" id="grid"></main>
+
+    <!-- ✅ 전체 연도 PDF용 (평소엔 숨김) -->
+    <div id="printAll"></div>
+
+  </div>
+
+  <!-- Lunar/Solar converter -->
+  <script src="https://cdn.jsdelivr.net/npm/korean-lunar-calendar@0.3.6/dist/korean-lunar-calendar.min.js"></script>
+
+  <script>
+    const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+    const WEEK_KR = ["일","월","화","수","목","금","토"];
+
+    const YEAR_START = 2026;
+    const YEAR_END   = 2040;
+
+    // RAW[name] = { birth_year, calendar, birth_mm, birth_dd, leap, birthdays: { "2026":"MM/DD (월)"... } }
+    let RAW = {};
+    let DATA = {};
+    let YEARS = [];
+    let currentYear = YEAR_START;
+
+    const tabsEl = document.getElementById("tabs");
+    const gridEl = document.getElementById("grid");
+    const subtitleEl = document.getElementById("subtitle");
+    const toastEl = document.getElementById("toast");
+    const peopleListEl = document.getElementById("peopleList");
+    const printAllEl = document.getElementById("printAll");
+    const printPeopleEl = document.getElementById("printPeople");
+    const currentYearTitleEl = document.getElementById("currentYearTitle");
+
+
+    const resetBtn = document.getElementById("resetBtn");
+
+    const fName = document.getElementById("fName");
+    const fBirthYear = document.getElementById("fBirthYear");
+    const fCal = document.getElementById("fCal");
+    const fMonth = document.getElementById("fMonth");
+    const fDay = document.getElementById("fDay");
+    const fLeap = document.getElementById("fLeap");
+    const addBtn = document.getElementById("addBtn");
+    const clearBtn = document.getElementById("clearBtn");
+
+    function showToast(msg){
+      toastEl.textContent = msg;
+      toastEl.style.display = "block";
+      clearTimeout(showToast._t);
+      showToast._t = setTimeout(()=>toastEl.style.display="none", 3500);
+    }
+
+    function pad2(n){ return String(n).padStart(2,"0"); }
+
+    function fmtSolar(y,m,d){
+      const wd = WEEK_KR[new Date(y, m-1, d).getDay()];
+      return `${pad2(m)}/${pad2(d)} (${wd})`;
+    }
+
+    function parseCellDate(str){
+      if (!str || typeof str !== "string") return null;
+      const m = str.match(/^(\d{2})\/(\d{2})\s*\((.)\)\s*$/);
+      if(!m) return null;
+      return { mm: parseInt(m[1],10), dd: parseInt(m[2],10), dow: m[3] };
+    }
+
+    function lunarToSolarSafe(year, mm, dd, isLeap){
+      const cal = new KoreanLunarCalendar();
+
+      let ok = cal.setLunarDate(year, mm, dd, isLeap);
+      if (!ok && dd > 1){
+        ok = cal.setLunarDate(year, mm, dd - 1, isLeap);
+      }
+      if (!ok){
+        throw new Error(`Invalid lunar date: ${year}-${mm}-${dd} (leap=${isLeap})`);
+      }
+      const s = cal.getSolarCalendar();
+      return { y: s.year, m: s.month, d: s.day };
+    }
+
+    function buildBirthdaysForPerson(person){
+      const kind = person.calendar; // "l" or "s"
+      const mm = Number(person.birth_mm);
+      const dd = Number(person.birth_dd);
+      const isLeap = !!person.leap;
+
+      const birthdays = {};
+      for (let y = YEAR_START; y <= YEAR_END; y++){
+        let sy=y, sm=mm, sd=dd;
+        if (kind === "l"){
+          const solar = lunarToSolarSafe(y, mm, dd, isLeap);
+          sy = solar.y; sm = solar.m; sd = solar.d;
+        }
+        birthdays[String(y)] = fmtSolar(sy, sm, sd);
+      }
+      return birthdays;
+    }
+
+    function buildDataFromRaw(raw){
+      const data = {};
+      const yearSet = new Set();
+
+      for (const [name, info] of Object.entries(raw)){
+        const by = Number(info.birth_year);
+        const birthdays = info.birthdays || {};
+
+        for (const [yearStr, dateStr] of Object.entries(birthdays)){
+          const year = Number(yearStr);
+          if (!Number.isFinite(year)) continue;
+
+          const parsed = parseCellDate(dateStr);
+          if (!parsed) continue;
+
+          yearSet.add(year);
+          if (!data[year]) data[year] = [];
+
+          data[year].push({
+            name,
+            mm: parsed.mm,
+            dd: parsed.dd,
+            dow: parsed.dow,
+            age: Number.isFinite(by) ? (year - by) : null
+          });
+        }
+      }
+
+      const years = Array.from(yearSet).sort((a,b)=>a-b);
+      years.forEach(y => data[y].sort((a,b)=> (a.mm-b.mm) || (a.dd-b.dd) || a.name.localeCompare(b.name)));
+
+      return { data, years };
+    }
+
+    function makeTabs(){
+      tabsEl.innerHTML = "";
+      YEARS.forEach(y=>{
+        const b = document.createElement("button");
+        b.className = "tab" + (y === currentYear ? " active" : "");
+        b.textContent = y;
+        b.addEventListener("click", ()=>{
+          currentYear = y;
+          makeTabs();
+          renderYear();
+        });
+        tabsEl.appendChild(b);
+      });
+    }
+
+    function renderYear(){
+      currentYearTitleEl.textContent = currentYear;
+      gridEl.innerHTML = "";
+
+      const entries = DATA[currentYear] || [];
+      const byMonth = Array.from({length:12}, ()=>[]);
+      entries.forEach(e => byMonth[e.mm - 1].push(e));
+      byMonth.forEach(arr => arr.sort((a,b)=> a.dd - b.dd));
+
+      byMonth.forEach((arr, idx)=>{
+        const card = document.createElement("section");
+        card.className = `month m${idx+1}`;
+
+        const cap = document.createElement("div");
+        cap.className = "cap";
+
+        const name = document.createElement("div");
+        name.className = "name";
+        name.textContent = MONTHS[idx];
+
+        const num = document.createElement("div");
+        num.className = "num";
+        num.textContent = pad2(idx+1);
+
+        cap.appendChild(name);
+        cap.appendChild(num);
+
+        const body = document.createElement("div");
+        body.className = "body";
+
+        if(arr.length === 0){
+          const empty = document.createElement("div");
+          empty.className = "empty";
+          empty.textContent = "생일자 없음";
+          body.appendChild(empty);
+        } else {
+          arr.forEach(e=>{
+            const row = document.createElement("div");
+            row.className = "entry";
+
+            const when = document.createElement("div");
+            when.className = "when";
+            when.textContent = `${e.dd} (${e.dow})`;
+
+            const who = document.createElement("div");
+            who.className = "who";
+            who.textContent = e.name;
+
+            const age = document.createElement("div");
+            age.className = "age";
+            age.textContent = (typeof e.age === "number" && Number.isFinite(e.age)) ? `${e.age}세` : "";
+
+            row.appendChild(when);
+            row.appendChild(who);
+            row.appendChild(age);
+            body.appendChild(row);
+          });
+        }
+
+        card.appendChild(cap);
+        card.appendChild(body);
+        gridEl.appendChild(card);
+      });
+    }
+
+    /* ✅ ALL YEARS PDF: 연도별 블록 생성 */
+    function buildYearGrid(year){
+      const wrapper = document.createElement("section");
+      wrapper.className = "yearBlock";
+
+      const title = document.createElement("h2");
+      title.className = "yearTitle";
+      title.textContent = `${year}`;
+      wrapper.appendChild(title);
+
+      const yearGrid = document.createElement("div");
+      yearGrid.className = "yearGrid";
+
+      const entries = DATA[year] || [];
+      const byMonth = Array.from({length:12}, ()=>[]);
+      entries.forEach(e => byMonth[e.mm - 1].push(e));
+      byMonth.forEach(arr => arr.sort((a,b)=> a.dd - b.dd));
+
+      byMonth.forEach((arr, idx)=>{
+        const card = document.createElement("section");
+        card.className = `month m${idx+1}`;
+
+        const cap = document.createElement("div");
+        cap.className = "cap";
+
+        const name = document.createElement("div");
+        name.className = "name";
+        name.textContent = MONTHS[idx];
+
+        const num = document.createElement("div");
+        num.className = "num";
+        num.textContent = pad2(idx+1);
+
+        cap.appendChild(name);
+        cap.appendChild(num);
+
+        const body = document.createElement("div");
+        body.className = "body";
+
+        if(arr.length === 0){
+          const empty = document.createElement("div");
+          empty.className = "empty";
+          empty.textContent = "No birthdays";
+          body.appendChild(empty);
+        } else {
+          arr.forEach(e=>{
+            const row = document.createElement("div");
+            row.className = "entry";
+
+            const when = document.createElement("div");
+            when.className = "when";
+            when.textContent = `${e.dd} (${e.dow})`;
+
+            const who = document.createElement("div");
+            who.className = "who";
+            who.textContent = e.name;
+
+            const age = document.createElement("div");
+            age.className = "age";
+            age.textContent = (typeof e.age === "number" && Number.isFinite(e.age)) ? `${e.age}세` : "";
+
+            row.appendChild(when);
+            row.appendChild(who);
+            row.appendChild(age);
+            body.appendChild(row);
+          });
+        }
+
+        card.appendChild(cap);
+        card.appendChild(body);
+        yearGrid.appendChild(card);
+      });
+
+      wrapper.appendChild(yearGrid);
+      return wrapper;
+    }
+
+    function saveLocal(){
+      localStorage.setItem("family_birthdays_raw", JSON.stringify(RAW));
+    }
+
+    function loadLocal(){
+      const s = localStorage.getItem("family_birthdays_raw");
+      if (!s) return null;
+      try{ return JSON.parse(s); }catch{ return null; }
+    }
+
+    function rebuildAndRender(){
+      const built = buildDataFromRaw(RAW);
+      DATA = built.data;
+      YEARS = built.years.length ? built.years : Array.from({length:(YEAR_END-YEAR_START+1)}, (_,i)=>YEAR_START+i);
+
+      if (!YEARS.includes(currentYear)){
+        currentYear = YEARS.includes(YEAR_START) ? YEAR_START : YEARS[0];
+      }
+      makeTabs();
+      renderYear();
+      renderPeopleList();
+    }
+
+    function calLabel(v){ return v === "l" ? "음력" : "양력"; }
+    function leapLabel(v){ return v ? "예" : "아니오"; }
+
+    function renderPeopleList(){
+      // keep head (first child), remove others
+      while (peopleListEl.children.length > 1) peopleListEl.removeChild(peopleListEl.lastChild);
+
+      const names = Object.keys(RAW).sort((a,b)=>a.localeCompare(b,"ko"));
+      if (!names.length){
+        const row = document.createElement("div");
+        row.className = "row";
+
+        peopleListEl.appendChild(row);
+        return;
+      }
+
+      names.forEach(name=>{
+        const p = RAW[name];
+
+        const row = document.createElement("div");
+        row.className = "row clickable";
+        row.title = "클릭하면 폼에 채워져서 수정 가능";
+
+        // clicking row fills the form
+        row.addEventListener("click", (ev)=>{
+          // avoid when clicking delete button
+          if (ev.target && ev.target.dataset && ev.target.dataset.action === "delete") return;
+
+          fName.value = name;
+          fBirthYear.value = p.birth_year;
+          fCal.value = p.calendar;
+          fMonth.value = p.birth_mm;
+          fDay.value = p.birth_dd;
+          fLeap.value = p.leap ? "true" : "false";
+          showToast(`"${name}" 선택됨 (수정하려면 Add / Update)`);
+        });
+
+        const del = document.createElement("button");
+        del.textContent = "Delete";
+        del.dataset.action = "delete";
+        del.addEventListener("click", (ev)=>{
+          ev.stopPropagation();
+          if (!confirm(`"${name}" 삭제할까?`)) return;
+          delete RAW[name];
+          saveLocal();
+          rebuildAndRender();
+          showToast(`"${name}" 삭제됨`);
+        });
+
+        const mmdd = `${p.birth_mm}/${p.birth_dd}`;
+
+        row.innerHTML = `
+          <div>${name}</div>
+          <div>${p.birth_year}</div>
+          <div><span class="pill">${calLabel(p.calendar)}</span></div>
+          <div>${mmdd}</div>
+          <div>${p.calendar === "l" ? leapLabel(!!p.leap) : "-"}</div>
+          <div></div>
+        `;
+        row.lastElementChild.appendChild(del);
+
+        peopleListEl.appendChild(row);
+      });
+    }
+
+    /* ===== PRINT: People List (first page) ===== */
+    function fmtBirthYMD(p){
+      const y = String(p.birth_year || "");
+      const m = pad2(Number(p.birth_mm));
+      const d = pad2(Number(p.birth_dd));
+      return `${y}.${m}.${d}`;
+    }
+
+    function buildPeoplePrintTable(){
+      const names = Object.keys(RAW).sort((a,b)=>a.localeCompare(b,"ko"));
+
+      if (!names.length){
+        printPeopleEl.innerHTML = `
+          <section class="peoplePrint">
+            <h2>People List</h2>
+            <div style="padding:12px 14px; font-size:11pt; color:rgba(0,0,0,.55); font-weight:800;">
+              아직 아무도 없어. (Add/Update로 추가한 뒤 PDF로 저장해줘!)
+            </div>
+          </section>
+        `;
+        return;
+      }
+
+      const rows = names
+        .map(name => ({ name, p: RAW[name] }))
+        .sort((a,b)=>{
+          const am = Number(a.p.birth_mm), bm = Number(b.p.birth_mm);
+          const ad = Number(a.p.birth_dd), bd = Number(b.p.birth_dd);
+          if (am !== bm) return am - bm;
+          if (ad !== bd) return ad - bd;
+          return a.name.localeCompare(b.name,"ko");
+        });
+
+      const trs = rows.map(({name, p})=>{
+        const ymd = fmtBirthYMD(p);
+        const cal = (p.calendar === "l") ? "음력" : "양력";
+        const leap = (p.calendar === "l") ? (p.leap ? "예" : "아니오") : "-";
+        return `
+          <tr>
+            <td>${name}</td>
+            <td>${ymd}</td>
+            <td>${cal}</td>
+            <td>${leap}</td>
+          </tr>
+        `;
+      }).join("");
+
+      printPeopleEl.innerHTML = `
+        <section class="peoplePrint">
+          <h2>People List</h2>
+          <table>
+            <thead>
+              <tr>
+                <th style="width:30%;">이름</th>
+                <th style="width:30%;">생년월일</th>
+                <th style="width:20%;">음력/양력</th>
+                <th style="width:20%;">윤달</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${trs}
+            </tbody>
+          </table>
+        </section>
+      `;
+    }
+
+    function clearForm(){
+      fName.value = "";
+      fBirthYear.value = "";
+      fCal.value = "s";
+      fMonth.value = "";
+      fDay.value = "";
+      fLeap.value = "false";
+    }
+
+    addBtn.addEventListener("click", ()=>{
+      const name = (fName.value || "").trim();
+      const birthYear = Number(fBirthYear.value);
+      const cal = fCal.value; // s/l
+      const mm = Number(fMonth.value);
+      const dd = Number(fDay.value);
+      const leap = (fLeap.value === "true");
+
+      if (!name) return alert("이름을 입력해줘!");
+      if (!Number.isFinite(birthYear) || birthYear < 1900 || birthYear > 2100) return alert("출생연도를 올바르게 입력해주세요!");
+      if (!Number.isFinite(mm) || mm < 1 || mm > 12) return alert("월(1~12)!");
+      if (!Number.isFinite(dd) || dd < 1 || dd > 31) return alert("일(1~31)!");
+      if (cal === "s" && leap) return alert("양력인데 윤달=예는 불가!");
+
+      try{
+        const person = {
+          birth_year: birthYear,
+          calendar: cal,
+          birth_mm: mm,
+          birth_dd: dd,
+          leap: (cal === "l" ? leap : false),
+        };
+        person.birthdays = buildBirthdaysForPerson(person);
+
+        const existed = !!RAW[name];
+        RAW[name] = person;
+
+        saveLocal();
+        rebuildAndRender();
+        showToast(existed ? `"${name}" 업데이트 완료!` : `"${name}" 추가 완료!`);
+        clearForm();
+      }catch(err){
+        console.error(err);
+        alert("변환 실패: 입력한 음력 날짜가 유효하지 않을 수 있어!");
+      }
+    });
+
+    clearBtn.addEventListener("click", ()=>{
+      clearForm();
+      showToast("폼 초기화");
+    });
+
+    resetBtn.addEventListener("click", ()=>{
+      if (!confirm("전체를 다 지울까?")) return;
+      RAW = {};
+      saveLocal();
+      rebuildAndRender();
+      clearForm();
+      showToast("전체 삭제 완료");
+    });
+
+
+    function exportAllYearsToPdf(){
+      // ✅ 1페이지 People List
+      buildPeoplePrintTable();
+
+      // 전체 연도 DOM 만들기
+      printAllEl.innerHTML = "";
+      YEARS.forEach(y=>{
+        printAllEl.appendChild(buildYearGrid(y));
+      });
+
+      // 모드 ON → print
+      document.body.classList.add("printAll");
+      window.print();
+    }
+
+    const exportPdfBtn = document.getElementById("exportPdfBtn");
+    exportPdfBtn.addEventListener("click", () => {
+      buildPeoplePrintTable();
+      window.print();
+    });
+
+    const exportAllPdfBtn = document.getElementById("exportAllPdfBtn");
+    exportAllPdfBtn.addEventListener("click", exportAllYearsToPdf);
+
+    // 프린트 시작 직전에 People List 표를 준비 (단축키/브라우저 메뉴로 프린트해도 표 생성됨)
+    window.addEventListener("beforeprint", ()=>{
+      buildPeoplePrintTable();
+    });
+
+    // print 끝나면 원래 화면 복구
+    window.addEventListener("afterprint", ()=>{
+      document.body.classList.remove("printAll");
+      printAllEl.innerHTML = "";
+      printPeopleEl.innerHTML = "";
+    });
+
+    // initial
+    RAW = loadLocal() || {};
+    rebuildAndRender();
+  </script>
+</body>
+</html>
